@@ -1119,18 +1119,26 @@ function StatsPage({ data, stats }: { data: AppData; stats: ReturnType<typeof bu
 }
 
 function QuestionCard({ question, selected, submitted, isCorrect, onSelect, onSubmit, onNext, onChanged }: { question: Question; selected: string[]; submitted: boolean; isCorrect: boolean; onSelect: (value: string[]) => void; onSubmit: () => Promise<void>; onNext: () => void; onChanged: () => Promise<void> }) {
+  const cardRef = useRef<HTMLDivElement>(null)
   const feedbackRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    window.setTimeout(() => {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      cardRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' })
+    }, 50)
+  }, [question.id])
 
   useEffect(() => {
     if (!submitted) return
     window.setTimeout(() => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      feedbackRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' })
+      feedbackRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'center' })
     }, 50)
   }, [submitted])
 
   return (
-    <div className="space-y-5">
+    <div ref={cardRef} className="scroll-mt-24 space-y-5">
       <QuestionStem question={question} />
       <OptionSelector question={question} selected={selected} disabled={submitted} onChange={onSelect} />
       {submitted && <div ref={feedbackRef}><AnswerFeedback question={question} selected={selected} /></div>}
