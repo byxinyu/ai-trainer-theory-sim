@@ -1133,17 +1133,19 @@ function QuestionCard({ question, selected, submitted, isCorrect, onSelect, onSu
       <QuestionStem question={question} />
       <OptionSelector question={question} selected={selected} disabled={submitted} onChange={onSelect} />
       {submitted && <div ref={feedbackRef}><AnswerFeedback question={question} selected={selected} /></div>}
-      <div className="sticky bottom-[5.25rem] z-10 -mx-5 flex flex-col gap-3 border-t border-slate-100 bg-white/95 px-5 py-3 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:border-t-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none">
-        <FavoriteButton questionId={question.id} onChanged={onChanged} />
-        <div className="grid grid-cols-2 gap-3 sm:flex">
-          {!submitted ? (
-            <button type="button" className="col-span-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 sm:col-span-1" disabled={selected.length === 0} onClick={() => void onSubmit()}>提交答案</button>
-          ) : (
-            <>
-              <span className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${isCorrect ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>{isCorrect ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}{isCorrect ? '回答正确' : '回答错误'}</span>
-              <button type="button" className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700" onClick={onNext}>下一题</button>
-            </>
-          )}
+      <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 sm:bg-white">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <FavoriteButton questionId={question.id} onChanged={onChanged} />
+          <div className="grid grid-cols-2 gap-3 sm:flex">
+            {!submitted ? (
+              <button type="button" className="col-span-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 sm:col-span-1" disabled={selected.length === 0} onClick={() => void onSubmit()}>提交答案</button>
+            ) : (
+              <>
+                <span className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${isCorrect ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>{isCorrect ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}{isCorrect ? '回答正确' : '回答错误'}</span>
+                <button type="button" className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700" onClick={onNext}>下一题</button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
