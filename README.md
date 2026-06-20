@@ -1,73 +1,133 @@
-# React + TypeScript + Vite
+﻿# AI 训练师理论考试复习系统
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+面向**人工智能训练师（三级）**理论考试的本地优先刷题与模拟考试系统。支持从 TXT/DOCX 导入题库，提供多种刷题模式、智能错题管理、模拟考试和学情统计，数据全部存储在浏览器本地。
 
-Currently, two official plugins are available:
+## 功能特性
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 题库导入
+- 支持 **TXT** 和 **DOCX** 格式题库导入
+- 自动识别题型（单选/多选/判断）、选项、答案和解析
+- 支持**关键概念.docx** 导入为知识点卡片
+- 判断汇总 docx 自动转换
+- 导入结果预览（成功数、失败数、疑似重复检测）
 
-## React Compiler
+### 刷题练习
+- **全部题目**：顺序刷题
+- **单选专项 / 多选专项 / 判断专项**：按题型集中练习
+- **AI 专项**：基于本地答题记录智能推荐薄弱题型
+- **错题重练**：自动收录错题，连续答对 3 次标记掌握
+- **收藏题**：收藏重点题目反复练习
+- **未做题**：只显示未答过的题目
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 学情统计
+- 首页看板：总题数、累计作答、正确率、错题数、考试次数
+- 智能复习计划：基于答题数据生成学习建议
+- 知识点掌握度：按知识点维度统计正确率
+- 近 7 天趋势：作答数量和正确率变化
+- 高频错题 Top 10：识别薄弱环节
+- 错因标签管理
 
-## Expanding the ESLint configuration
+### 模拟考试
+- 固定结构：单选 70 题 + 多选 20 题 + 判断 10 题 = 100 分
+- 90 分钟倒计时，自动交卷
+- 按题型统计正确率，考试用时记录
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 知识点复习
+- 从关键概念 docx 导入知识点
+- 知识点与相关题目关联
+- 卡片式复习，支持标记掌握状态
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 数据管理
+- 全部数据存储在浏览器 **IndexedDB**（无云端同步）
+- **JSON 备份导出 / 导入恢复**
+- 支持清除全部数据
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 技术栈
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| 技术 | 用途 |
+|------|------|
+| React 19 | 用户界面 |
+| TypeScript 6 | 类型安全 |
+| Vite 8 | 构建工具与开发服务器 |
+| Tailwind CSS 4 | 样式框架 |
+| Dexie.js | IndexedDB 封装，本地数据持久化 |
+| Recharts | 学情统计图表 |
+| Lucide React | UI 图标 |
+| Mammoth.js | DOCX 文件文本提取 |
+| vite-plugin-pwa | PWA 离线支持 |
+| zustand | 状态管理 |
+
+## 快速开始
+
+### 在线使用
+访问 [GitHub Pages](https://byxinyu.github.io/ai-trainer-theory-sim/) 可直接使用。支持安装为 PWA 到桌面或手机。
+
+### 本地开发
+
+```bash
+cd app
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 首次使用
+1. 进入**导入**页面上传 TXT 题库文件
+2. 上传 DOCX 补充题库和判断汇总
+3. 可选：上传关键概念.docx 导入知识点资料
+4. 进入**刷题练习**或**模拟考试**开始学习
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 练习模式
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| 模式 | 说明 |
+|------|------|
+| 全部题目 | 按导入顺序刷全部题目 |
+| 单选专项 | 只显示单选题 |
+| 多选专项 | 只显示多选题 |
+| 判断专项 | 只显示判断题 |
+| AI 专项 | 基于错误频率和知识点薄弱项智能组题 |
+| 错题重练 | 只显示错题，连续 3 次正确标记掌握 |
+| 收藏题 | 只显示收藏的题目 |
+| 未做题 | 只显示从未答过的题目 |
+
+每种模式独立记忆上次进度。
+
+## 模拟考试
+
+- 单选题 70 题 + 多选题 20 题 + 判断题 10 题 = **100 分**
+- 时长 **90 分钟**，倒计时自动交卷
+- 多选题完全匹配计分，少选不得分
+- 支持题号导航、未答题提示、考后报告
+
+## 数据与隐私
+
+- 全部数据存储在浏览器本地 **IndexedDB**，**无云端同步**
+- 支持导出 JSON 备份并在其他设备恢复
+- 清除浏览器缓存会丢失数据，建议定期备份
+
+## 项目结构
+
 ```
+app/
+├── src/
+│   ├── App.tsx              # 主应用（单页应用）
+│   ├── db/dexie.ts          # IndexedDB 数据库
+│   ├── features/import/     # 题库导入解析器
+│   ├── features/settings/   # 备份与恢复
+│   ├── services/
+│   │   ├── answerService.ts         # 作答与错题管理
+│   │   ├── questionFilterService.ts # 练习模式过滤
+│   │   ├── statsService.ts          # 统计分析
+│   │   └── localAiService.ts        # AI 推荐
+│   └── types/question.ts    # 类型定义
+├── package.json
+├── vite.config.ts
+└── docs/                    # 项目文档
+```
+
+## PWA 支持
+
+已配置 PWA：可安装到桌面/手机主屏幕，支持离线使用，独立窗口运行。
+
+## License
+
+MIT
