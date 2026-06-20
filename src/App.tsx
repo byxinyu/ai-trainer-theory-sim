@@ -754,7 +754,7 @@ function QuestionRunner({ title, subtitle, data, onChanged, defaultFilter, embed
       const question = questions[index]
       const isCorrect = question ? isSameAnswer(selected, question.answer) : false
       const displayIsCorrect = lastSubmitData ? isSameAnswer(lastSubmitData.selected, lastSubmitData.question.answer) : isCorrect
-      const feedbackQuestion = lastSubmitData?.question
+      const displayQuestion = (submitted && lastSubmitData) ? lastSubmitData.question : question
 
       useEffect(() => {
         const savedIndex = Number(window.localStorage.getItem(progressKey) ?? '0')
@@ -809,8 +809,7 @@ function QuestionRunner({ title, subtitle, data, onChanged, defaultFilter, embed
         </div>
         {!question ? <EmptyState title="没有可练习的题目" description="请先导入题库，或完成新的错题记录。" /> : (
           <QuestionCard
-            question={question}
-            feedbackQuestion={feedbackQuestion}
+            question={displayQuestion}
             selected={selected}
             submitted={submitted}
             isCorrect={displayIsCorrect}
@@ -848,8 +847,7 @@ function QuestionRunner({ title, subtitle, data, onChanged, defaultFilter, embed
         <Panel title={`当前练习：${questions.length} 道`} subtitle={question ? `第 ${index + 1} / ${questions.length} 题` : '暂无可练习题目'}>
           {!question ? <EmptyState title="没有可练习的题目" description="请先导入题库，或切换练习范围。" /> : (
             <QuestionCard
-              question={question}
-              feedbackQuestion={feedbackQuestion}
+              question={displayQuestion}
               selected={selected}
               submitted={submitted}
               isCorrect={displayIsCorrect}
@@ -1133,7 +1131,7 @@ function StatsPage({ data, stats }: { data: AppData; stats: ReturnType<typeof bu
   )
 }
 
-function QuestionCard({ question, feedbackQuestion, selected, submitted, isCorrect, onSelect, onSubmit, onNext, onChanged }: { question: Question; feedbackQuestion?: Question; selected: string[]; submitted: boolean; isCorrect: boolean; onSelect: (value: string[]) => void; onSubmit: () => Promise<void>; onNext: () => void; onChanged: () => Promise<void> }) {
+function QuestionCard({ question, selected, submitted, isCorrect, onSelect, onSubmit, onNext, onChanged }: { question: Question; selected: string[]; submitted: boolean; isCorrect: boolean; onSelect: (value: string[]) => void; onSubmit: () => Promise<void>; onNext: () => void; onChanged: () => Promise<void> }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const feedbackRef = useRef<HTMLDivElement>(null)
 
@@ -1157,7 +1155,7 @@ function QuestionCard({ question, feedbackQuestion, selected, submitted, isCorre
     <div ref={cardRef} className="scroll-mt-24 space-y-5">
       <QuestionStem question={question} />
       <OptionSelector question={question} selected={selected} disabled={submitted} onChange={onSelect} />
-      {submitted && <div ref={feedbackRef}><AnswerFeedback question={feedbackQuestion ?? question} selected={selected} /></div>}
+      {submitted && <div ref={feedbackRef}><AnswerFeedback question={question} selected={selected} /></div>}
       <FavoriteButton questionId={question.id} onChanged={onChanged} />
       <div className="sticky bottom-[5rem] z-10 -mx-5 border-t border-slate-100 bg-white/95 px-5 py-3 backdrop-blur sm:static sm:mx-0 sm:border-t-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
