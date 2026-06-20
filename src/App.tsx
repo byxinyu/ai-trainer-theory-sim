@@ -746,42 +746,51 @@ function QuestionRunner({ title, subtitle, data, onChanged, defaultFilter, embed
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<string[]>([])
        const [submitted, setSubmitted] = useState(false)
-       const [startedAt, setStartedAt] = useState(Date.now())
+      const [startedAt, setStartedAt] = useState(Date.now())
+      const [lastSubmitData, setLastSubmitData] = useState<{ question: Question; selected: string[] } | null>(null)
 
-       const questions = useMemo(() => filterQuestions(data, filter), [data, filter])
-       const progressKey = `ai-trainer-practice-progress:${filter}`
-       const question = questions[index]
-       const isCorrect = question ? isSameAnswer(selected, question.answer) : false
+      const questions = useMemo(() => filterQuestions(data, filter), [data, filter])
+      const progressKey = `ai-trainer-practice-progress:${filter}`
+      const question = questions[index]
+      const isCorrect = question ? isSameAnswer(selected, question.answer) : false
+      const displayIsCorrect = lastSubmitData ? isSameAnswer(lastSubmitData.selected, lastSubmitData.question.answer) : isCorrect
+      const feedbackQuestion = lastSubmitData?.question
 
-       useEffect(() => {
-         setSelected([])
-         setSubmitted(false)
-         setStartedAt(Date.now())
-         setIndex(0)
-       }, [filter])
+      useEffect(() => {
+        const savedIndex = Number(window.localStorage.getItem(progressKey) ?? '0')
+        setIndex(Math.min(savedIndex, Math.max(questions.length - 1, 0)))
+        setSelected([])
+        setSubmitted(false)
+        setStartedAt(Date.now())
+      }, [filter])
 
-       useEffect(() => {
-         if (questions.length === 0) return
-         setIndex((current) => Math.min(current, questions.length - 1))
-       }, [questions.length])
+      useEffect(() => {
+        if (questions.length === 0) return
+        setIndex((current) => Math.min(current, questions.length - 1))
+      }, [questions.length])
 
-        const submit = async () => {
+       const submit = async () => {
     if (!question || selected.length === 0) return
     const correct = isSameAnswer(selected, question.answer)
     await saveAnswer(question, selected, correct, Date.now() - startedAt, filter === 'mistakes' ? 'mistake' : filter === 'favorites' ? 'favorite' : 'practice')
     setSubmitted(true)
+    setLastSubmitData({ question, selected })
     await onChanged()
   }
 
   const next = () => {
+    const arrayShifted = lastSubmitData !== null && question.id !== lastSubmitData.question.id
+    setLastSubmitData(null)
     setSelected([])
     setSubmitted(false)
     setStartedAt(Date.now())
-    setIndex((current) => {
-      const nextIndex = Math.min(current + 1, Math.max(questions.length - 1, 0))
-      window.localStorage.setItem(progressKey, String(nextIndex))
-      return nextIndex
-    })
+    if (!arrayShifted) {
+      setIndex((current) => {
+        const nextIndex = Math.min(current + 1, Math.max(questions.length - 1, 0))
+        window.localStorage.setItem(progressKey, String(nextIndex))
+        return nextIndex
+      })
+    }
   }
 
   const resetProgress = () => {
@@ -801,9 +810,10 @@ function QuestionRunner({ title, subtitle, data, onChanged, defaultFilter, embed
         {!question ? <EmptyState title="没有可练习的题目" description="请先导入题库，或完成新的错题记录。" /> : (
           <QuestionCard
             question={question}
+            feedbackQuestion={feedbackQuestion}
             selected={selected}
             submitted={submitted}
-            isCorrect={isCorrect}
+            isCorrect={displayIsCorrect}
             onSelect={setSelected}
             onSubmit={submit}
             onNext={next}
@@ -839,9 +849,10 @@ function QuestionRunner({ title, subtitle, data, onChanged, defaultFilter, embed
           {!question ? <EmptyState title="没有可练习的题目" description="请先导入题库，或切换练习范围。" /> : (
             <QuestionCard
               question={question}
+              feedbackQuestion={feedbackQuestion}
               selected={selected}
               submitted={submitted}
-              isCorrect={isCorrect}
+              isCorrect={displayIsCorrect}
               onSelect={setSelected}
               onSubmit={submit}
               onNext={next}
@@ -1122,7 +1133,7 @@ function StatsPage({ data, stats }: { data: AppData; stats: ReturnType<typeof bu
   )
 }
 
-function QuestionCard({ question, selected, submitted, isCorrect, onSelect, onSubmit, onNext, onChanged }: { question: Question; selected: string[]; submitted: boolean; isCorrect: boolean; onSelect: (value: string[]) => void; onSubmit: () => Promise<void>; onNext: () => void; onChanged: () => Promise<void> }) {
+function QuestionCard({ question, feedbackQuestion, selected, submitted, isCorrect, onSelect, onSubmit, onNext, onChanged }: { question: Question; feedbackQuestion?: Question; selected: string[]; submitted: boolean; isCorrect: boolean; onSelect: (value: string[]) => void; onSubmit: () => Promise<void>; onNext: () => void; onChanged: () => Promise<void> }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const feedbackRef = useRef<HTMLDivElement>(null)
 
@@ -1146,7 +1157,7 @@ function QuestionCard({ question, selected, submitted, isCorrect, onSelect, onSu
     <div ref={cardRef} className="scroll-mt-24 space-y-5">
       <QuestionStem question={question} />
       <OptionSelector question={question} selected={selected} disabled={submitted} onChange={onSelect} />
-      {submitted && <div ref={feedbackRef}><AnswerFeedback question={question} selected={selected} /></div>}
+      {submitted && <div ref={feedbackRef}><AnswerFeedback question={feedbackQuestion ?? question} selected={selected} /></div>}
       <FavoriteButton questionId={question.id} onChanged={onChanged} />
       <div className="sticky bottom-[5rem] z-10 -mx-5 border-t border-slate-100 bg-white/95 px-5 py-3 backdrop-blur sm:static sm:mx-0 sm:border-t-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
