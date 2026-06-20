@@ -1127,11 +1127,12 @@ function QuestionCard({ question, selected, submitted, isCorrect, onSelect, onSu
   const feedbackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (submitted) return
     window.setTimeout(() => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       cardRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' })
     }, 50)
-  }, [question.id])
+  }, [question.id, submitted])
 
   useEffect(() => {
     if (!submitted) return
