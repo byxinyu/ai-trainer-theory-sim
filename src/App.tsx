@@ -745,23 +745,27 @@ function QuestionRunner({ title, subtitle, data, onChanged, defaultFilter, embed
   const [filter, setFilter] = useState<PracticeFilter>(defaultFilter)
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<string[]>([])
-  const [submitted, setSubmitted] = useState(false)
-  const [startedAt, setStartedAt] = useState(Date.now())
+       const [submitted, setSubmitted] = useState(false)
+       const [startedAt, setStartedAt] = useState(Date.now())
 
-  const questions = useMemo(() => filterQuestions(data, filter), [data, filter])
-  const progressKey = `ai-trainer-practice-progress:${filter}`
-  const question = questions[index]
-  const isCorrect = question ? isSameAnswer(selected, question.answer) : false
+       const questions = useMemo(() => filterQuestions(data, filter), [data, filter])
+       const progressKey = `ai-trainer-practice-progress:${filter}`
+       const question = questions[index]
+       const isCorrect = question ? isSameAnswer(selected, question.answer) : false
 
-  useEffect(() => {
-    const savedIndex = Number(window.localStorage.getItem(progressKey) ?? '0')
-    setIndex(Math.min(Math.max(savedIndex, 0), Math.max(questions.length - 1, 0)))
-    setSelected([])
-    setSubmitted(false)
-    setStartedAt(Date.now())
-  }, [filter, progressKey, questions.length])
+       useEffect(() => {
+         setSelected([])
+         setSubmitted(false)
+         setStartedAt(Date.now())
+         setIndex(0)
+       }, [filter])
 
-  const submit = async () => {
+       useEffect(() => {
+         if (questions.length === 0) return
+         setIndex((current) => Math.min(current, questions.length - 1))
+       }, [questions.length])
+
+        const submit = async () => {
     if (!question || selected.length === 0) return
     const correct = isSameAnswer(selected, question.answer)
     await saveAnswer(question, selected, correct, Date.now() - startedAt, filter === 'mistakes' ? 'mistake' : filter === 'favorites' ? 'favorite' : 'practice')
